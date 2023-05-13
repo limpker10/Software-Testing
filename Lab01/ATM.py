@@ -23,53 +23,55 @@ class Cajero:
             x = int(input("ingrese su contraseña:"))
             if x == password:
                 print("Contraseña Correcta")
-                break
+                return self.continuar
             else:
                 print(f"Contraseña Incorrecta, le quedan {3 - contador} intentos")
                 if contador == 3:
                     print("No puede realizar operaciones.")
                     self.continuar = False
                 contador += 1
-
+                
+        return self.continuar
+    
     def menu(self):
         os.system("cls")  # esto es solo para windows
-        self.contraseña()
-        opcion = 0
-        while opcion != "4":
-            os.system("cls")
-            print(
-                """ Bienvenido al cajero automatico
-            ******Menú******
-            1-  Depositar
-            2- Retirar
-            3- Ver saldo
-            4- Salir """
-            )
-            opcion = input("Su opción es: ")
-            if self.continuar:
-                if opcion == "1":
-                    self.depositar()
-                elif opcion == "2":
-                    self.retiro()
+        if self.contraseña() :
+            opcion = 0
+            while opcion != "4":
+                os.system("cls")
+                print(
+                    """ Bienvenido al cajero automatico
+                ******Menú******
+                1-  Depositar
+                2- Retirar
+                3- Ver saldo
+                4- Salir """
+                )
+                opcion = input("Su opción es: ")
+                if self.continuar:
+                    if opcion == "1":
+                        self.depositar()
+                    elif opcion == "2":
+                        self.retiro()
 
-                elif opcion == "3":
-                    self.ver()
+                    elif opcion == "3":
+                        self.ver()
 
-                elif opcion == "4":
-                    print("Programa finalizado")
+                    elif opcion == "4":
+                        print("Programa finalizado")
 
-                else:
-                    print("NO existe esa opción")
-
-            else:
-                if opcion in "123":
-                    print("Imposible realizar esa operación")
-
-                elif opcion == "4":
-                    print("Programa finalizado")
+                    else:
+                        print("NO existe esa opción")
 
                 else:
-                    print("No existe esa opción")
+                    if opcion in "123":
+                        print("Imposible realizar esa operación")
+
+                    elif opcion == "4":
+                        print("Programa finalizado")
+
+                    else:
+                        print("No existe esa opción")
 
     def depositar(self):
         dep = int(input("Ingrese su monto a depositar:"))
