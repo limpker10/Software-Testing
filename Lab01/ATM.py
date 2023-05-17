@@ -81,7 +81,10 @@ class Cajero:
     
     def depositar(self):
         deposito = int(input("Ingrese su monto a depositar:"))
-        if not self.depositoMaximo(deposito):
+        if not self.deposito_minimo(deposito):
+            print("El deposito minimo no puede ser menor a 1$.")
+            return 
+        if not self.deposito_maximo(deposito):
             print("El deposito excede el límite maximo permitido.")
             return
         print("Usted a depositado", deposito)
@@ -92,8 +95,11 @@ class Cajero:
         return self.monto
     
     def retiro(self):
-        retirar = int(input("¿Cuánto desea retirar? : "))
-        if not self.retiroMaximo(retirar):
+        retirar = int(input("¿Cuánto desea retirar? : "))        
+        if not self.retiro_minimo(retirar):
+            print("El retiro no puede ser una cantidad menor o igual a 0.")
+            return
+        if not self.retiro_maximo(retirar):
             print("El retiro excede el límite maximo permitido.")
             return
         print("Su monto actual es", self.monto)
@@ -102,6 +108,9 @@ class Cajero:
         else:
             print("Imposible realizar el retiro, su monto es menor")
     
+    def retiro_minimo(self,retirar):
+        return retirar > 0
+
     def validar_retiro(self,retirar):
         return self.monto >= retirar
     
@@ -118,10 +127,11 @@ class Cajero:
     def salir(self):
         print("Programa finalizado")
 
-    def retiroMaximo(self,retirar):
-        return  retirar <= RETIRO_MAX;
+    def retiro_maximo(self,retirar):
+        return  retirar <= RETIRO_MAX
     
-    def depositoMaximo(self,deposito):
-        return  deposito <= DEPOSITO_MAX;
+    def deposito_minimo(self,deposito):
+        return deposito > 1
 
-#app = Cajero()
+    def deposito_maximo(self,deposito):
+        return  deposito <= DEPOSITO_MAX
