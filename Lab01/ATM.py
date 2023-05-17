@@ -5,22 +5,19 @@ Created on Tue May  9 16:46:29 2023
 """
 
 import os
-import jwt
-
-from dotenv import load_dotenv
-
-load_dotenv()
-PASSWORD = str(os.getenv("PASSWORD"))
-RETIRO_MAX = 3000
-DEPOSITO_MAX = 10000
-SECRET_KEY = '7134743777217A25432A462D4A614E645267556B586E3272357538782F413F44'
-TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21icmUiOiJKb3NlIENhbm8iLCJzYWxkbyI6NTAwMH0.QfaNEvwxvq2wpRwymy4IHOWz-vBZGm7VXrS2k6cwBZQ'
+import csv
 
 class Cajero:
+
+    RETIRO_MAX = 3000
+    DEPOSITO_MAX = 10000
+    RETIRO_MIN = 1
+    DEPOSITO_MIN = 1
+
     def __init__(self):
         self.continuar = True
-        self.monto = 5000
-        
+        self.monto = 0
+        self.usuario = ""
 
     def contraseña(self):
         intentos = 3
@@ -29,6 +26,7 @@ class Cajero:
             if self.validar_contraseña(contraseña):
                 print("Contraseña Correcta")
                 return self.continuar
+                
             else:
                 intentos -= 1
                 print(f"Contraseña Incorrecta, le quedan {intentos} intentos")
@@ -42,7 +40,6 @@ class Cajero:
 
     def menu(self):
         os.system("cls")  # esto es solo para windows
-        self.asd()
         if self.contraseña():
             opcion = 0
             while opcion != "4":
@@ -82,13 +79,14 @@ class Cajero:
 
     
     def depositar(self):
-        deposito = int(input("Ingrese su monto a depositar:"))
+        deposito = float(input("Ingrese su monto a depositar:"))
         if not self.deposito_minimo(deposito):
             print("El deposito minimo no puede ser menor a 1$.")
             return 
         if not self.deposito_maximo(deposito):
             print("El deposito excede el límite maximo permitido.")
             return
+        
         print("Usted a depositado", deposito)
         print(f"Su nuevo saldo es {self.realizar_deposito(deposito)}")  
     
@@ -97,22 +95,25 @@ class Cajero:
         return self.monto
     
     def retiro(self):
-        retirar = int(input("¿Cuánto desea retirar? : "))        
+        retirar = float(input("¿Cuánto desea retirar? : "))        
         if not self.retiro_minimo(retirar):
             print("El retiro no puede ser una cantidad menor o igual a 0.")
             return
         if not self.retiro_maximo(retirar):
             print("El retiro excede el límite maximo permitido.")
             return
-        print("Su monto actual es", self.monto)
         if self.validar_retiro(retirar):
+            print("Su monto actual es", self.monto)
             print( f"Usted a retirado: {retirar} , su nuevo monto es {self.realizar_retiro(retirar)}" )
         else:
             print("Imposible realizar el retiro, su monto es menor")
     
     def retiro_minimo(self,retirar):
-        return retirar > 0
-
+        return retirar >= self.RETIRO_MIN
+    
+    def retiro_maximo(self,retirar):
+        return  retirar <= self.RETIRO_MAX
+    
     def validar_retiro(self,retirar):
         return self.monto >= retirar
     
@@ -129,39 +130,35 @@ class Cajero:
     def salir(self):
         print("Programa finalizado")
 
-    def retiro_maximo(self,retirar):
-        return  retirar <= RETIRO_MAX
-    
     def deposito_minimo(self,deposito):
-        return deposito > 1
+        return deposito >= self.DEPOSITO_MIN
 
     def deposito_maximo(self,deposito):
-        return  deposito <= DEPOSITO_MAX
+        return  deposito <= self.DEPOSITO_MAX
     
     def solicitar_contraseña(self):
         contraseña = input("Ingrese su contraseña: ")
         return contraseña
     
     def validar_contraseña(self, contraseña):
+        if not self.es_contraseña_valida(contraseña):
+            return False
         
-        if len(contraseña) <= 4 and contraseña.isdigit() and int(contraseña) >= 0:
-            return contraseña == PASSWORD
-        
+        with open('data.csv', 'r') as archivo:
+            reader = csv.reader(archivo)
+            for row in reader:
+                if self.coincide_contraseña(contraseña, row[1]):
+                    self.cargar_datos(row[0], row[2])
+                    return True
         return False
-    
 
+    def es_contraseña_valida(self, contraseña):
+        return len(contraseña) == 4 and contraseña.isdigit()
 
-    def validar_token(self,token):
-        try:
-            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            return decoded_token
-        except:
-            return None
-    
-    def asd(self):
-        decoded_token = self.validar_token(TOKEN)
-        if decoded_token:
-            print("Token válido. Datos del usuario:")
-            print(decoded_token)
-        else:
-            print("Token inválido")
+    def coincide_contraseña(self, contraseña_ingresada, contraseña_guardada):
+        return contraseña_ingresada == contraseña_guardada
+
+    def cargar_datos(self, nombre, monto):
+        self.monto = float(monto)
+        self.usuario = nombre
+        

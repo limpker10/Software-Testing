@@ -2,6 +2,8 @@ import unittest
 from atm import Cajero
 
 class CajeroTest(unittest.TestCase):
+    TEST_PASSWORD = "5467"
+
     def setUp(self):
         self.cajero = Cajero()
 
@@ -19,12 +21,13 @@ class CajeroTest(unittest.TestCase):
         self.assertFalse(self.cajero.validar_contraseña("abcd"), "Error: Se esperaba una contraseña incorrecta")
 
     def test_retiro_saldo_disponible(self):
-         #Se comprueba que el retiro sea un monto igual al monto disponible(5000)
-        self.assertTrue(self.cajero.validar_retiro(5000),"El retiro no se pudo realizar correctamente")
+        self.cajero.validar_contraseña(self.TEST_PASSWORD)
+        #Se comprueba que el retiro sea un monto igual al monto disponible(5000)
+        self.assertTrue(self.cajero.validar_retiro(self.cajero.monto),"El retiro no se pudo realizar correctamente")
         #Se comprueba que el retiro sea un monto menor al monto disponible(5000)
-        self.assertTrue(self.cajero.validar_retiro(450),"El saldo disponible no se actualizó")
+        self.assertTrue(self.cajero.validar_retiro(self.cajero.monto-1),"El saldo disponible no se actualizó")
         #Se comprueba que el retiro no sea mayor al monto disponible(5000)
-        self.assertFalse(self.cajero.validar_retiro(5001),"El retiro excedio el saldo disponible")
+        self.assertFalse(self.cajero.validar_retiro(self.cajero.monto+1),"El retiro excedio el saldo disponible")
 
     def test_retiro_minimo(self):
         #Se comprueba que el retiro no sea igual a una cantidad nula(0)
@@ -32,7 +35,7 @@ class CajeroTest(unittest.TestCase):
         #Se comprueba que el retiro no sea un valor negativo
         self.assertFalse(self.cajero.retiro_minimo(-450),"El retiro no debe ser un valor negativo")
         #Se comprueba que el retiro sea mayor a 0
-        self.assertTrue(self.cajero.retiro_minimo(10),"El retiro debe ser mayor a cero")
+        self.assertTrue(self.cajero.retiro_minimo(1),"El retiro debe ser mayor a cero")
 
     def test_retiro_maximo(self):
         #Se comprueba que el retiro sea menor al retiro maximo establecido(3000)
@@ -41,12 +44,19 @@ class CajeroTest(unittest.TestCase):
         self.assertFalse(self.cajero.retiro_maximo(4000),"El retiro no excede el retiro máximo establecido")
     
     def test_retirar(self):
+        self.cajero.validar_contraseña(self.TEST_PASSWORD)
         #Se comprueba que la operacion de retiro descuenta el retiro del monto inicial
-        self.assertEqual(self.cajero.realizar_retiro(1500),(5000-1500),"La operación de retiro no descuenta correctamente el monto del saldo inicial")
+        self.assertEqual(self.cajero.realizar_retiro(1500),self.cajero.monto,"La operación de retiro no se esta realizando correctamente")
+        self.assertNotEqual(self.cajero.realizar_retiro(1500),self.cajero.monto+1,"La operación de retiro no se esta realizando correctamente")
 
     def test_depositar(self):
+        self.cajero.validar_contraseña(self.TEST_PASSWORD)
         #Se comprueba que la operacion de deposito añade el deposito al monto inicial
-        self.assertEqual(self.cajero.realizar_deposito(2343), (5000+2343), "La operación de depósito no añade correctamente el monto al saldo inicial")
+        self.assertEqual(self.cajero.realizar_deposito(2343), (self.cajero.monto), "La operación de depósito no añade correctamente el monto al saldo inicial")
+        #Se comprueba que fracasa la operacion de deposito añade el deposito al monto inicial
+        self.assertNotEqual(self.cajero.realizar_deposito(2343), (self.cajero.monto+1), "La operación de depósito no añade correctamente el monto al saldo inicial")
+        #Se comprueba que fracasa la operacion de deposito negativo añade el deposito al monto inicial
+        self.assertNotEqual(self.cajero.realizar_deposito(-343), (self.cajero.monto+1), "La operación de depósito no añade correctamente el monto al saldo inicial")
 
     def test_deposito_minimo(self):
         #Se comprueba que el deposito no sea igual a una cantidad nula(0)
@@ -63,14 +73,15 @@ class CajeroTest(unittest.TestCase):
         self.assertFalse(self.cajero.deposito_maximo(15000), "El depósito excede el depósito máximo establecido")
 
     def test_ver_saldo(self):
+        self.cajero.validar_contraseña(self.TEST_PASSWORD)
         #Se comprueba que se muestra el saldo inicial por consola
-        self.assertEqual(self.cajero.obtener_saldo(),5000,"El saldo inicial no se muestra correctamente")
+        self.assertEqual(self.cajero.obtener_saldo(),self.cajero.monto,"El saldo inicial no se muestra correctamente")
         #Se comprueba que se muestra el saldo despues de haber hecho un deposito
         self.cajero.realizar_deposito(20)
-        self.assertEqual(self.cajero.obtener_saldo(),5020,"El saldo después del depósito no se muestra correctamente")
+        self.assertEqual(self.cajero.obtener_saldo(),self.cajero.monto,"El saldo después del depósito no se muestra correctamente")
         #Se comprueba que se muestra el saldo despues de haber hecho un retiro
         self.cajero.realizar_retiro(20)
-        self.assertEqual(self.cajero.obtener_saldo(),5000)
+        self.assertEqual(self.cajero.obtener_saldo(),self.cajero.monto)
 
 
 if __name__ == '__main__':
