@@ -5,42 +5,44 @@ Created on Tue May  9 16:46:29 2023
 """
 
 import os
+import jwt
 
 from dotenv import load_dotenv
 
 load_dotenv()
-PASSWORD = int(os.getenv("PASSWORD"))
+PASSWORD = str(os.getenv("PASSWORD"))
 RETIRO_MAX = 3000
 DEPOSITO_MAX = 10000
-
+SECRET_KEY = '7134743777217A25432A462D4A614E645267556B586E3272357538782F413F44'
+TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21icmUiOiJKb3NlIENhbm8iLCJzYWxkbyI6NTAwMH0.QfaNEvwxvq2wpRwymy4IHOWz-vBZGm7VXrS2k6cwBZQ'
 
 class Cajero:
     def __init__(self):
         self.continuar = True
         self.monto = 5000
-        #self.menu()
+        
 
     def contraseña(self):
-        contador = 1
-        while contador <= 3:
-            contraseña = int(input("ingrese su contraseña:"))
-            if contraseña == PASSWORD:
+        intentos = 3
+        while intentos > 0:
+            contraseña = self.solicitar_contraseña()
+            if self.validar_contraseña(contraseña):
                 print("Contraseña Correcta")
                 return self.continuar
             else:
-                print(f"Contraseña Incorrecta, le quedan {3 - contador} intentos")
-                if contador == 3:
+                intentos -= 1
+                print(f"Contraseña Incorrecta, le quedan {intentos} intentos")
+                if intentos == 0:
                     print("No puede realizar operaciones.")
                     self.continuar = False
-                contador += 1
 
         return self.continuar
     
 
 
     def menu(self):
-        message = ""
         os.system("cls")  # esto es solo para windows
+        self.asd()
         if self.contraseña():
             opcion = 0
             while opcion != "4":
@@ -135,3 +137,31 @@ class Cajero:
 
     def deposito_maximo(self,deposito):
         return  deposito <= DEPOSITO_MAX
+    
+    def solicitar_contraseña(self):
+        contraseña = input("Ingrese su contraseña: ")
+        return contraseña
+    
+    def validar_contraseña(self, contraseña):
+        
+        if len(contraseña) <= 4 and contraseña.isdigit() and int(contraseña) >= 0:
+            return contraseña == PASSWORD
+        
+        return False
+    
+
+
+    def validar_token(self,token):
+        try:
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            return decoded_token
+        except:
+            return None
+    
+    def asd(self):
+        decoded_token = self.validar_token(TOKEN)
+        if decoded_token:
+            print("Token válido. Datos del usuario:")
+            print(decoded_token)
+        else:
+            print("Token inválido")

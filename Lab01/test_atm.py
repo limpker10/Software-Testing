@@ -4,16 +4,19 @@ from atm import Cajero
 class CajeroTest(unittest.TestCase):
     def setUp(self):
         self.cajero = Cajero()
+
     
-    """
-    def test_retiro_saldo_suficiente(self):
-        #Se comprueba que el retiro sea un monto menor o igual al monto disponible(5000)
-        self.assertTrue(self.cajero.validar_retiro(5000))
-        
-    def test_retiro_saldo_insuficiente(self):
-        #Se comprueba que el retiro no sea mayor al monto disponible(5000)
-        self.assertFalse(self.cajero.validarRetiro(5001))
-    """
+    def test_validacion_contraseña(self):
+        #Se comprueba una contraseña correcta
+        self.assertTrue(self.cajero.validar_contraseña("5467"), "Error: Se esperaba una contraseña correcta")
+        #Se comprueba una contraseña Incorrecta
+        self.assertFalse(self.cajero.validar_contraseña("4167"), "Error: Se esperaba una contraseña incorrecta")
+        # Caso de prueba: contraseña incorrecta (mayor a 4 dígitos)
+        self.assertFalse(self.cajero.validar_contraseña("55267"), "Error: Se esperaba una contraseña incorrecta")
+        # Caso de prueba: contraseña incorrecta (valor negativo)
+        self.assertFalse(self.cajero.validar_contraseña("-5467"), "Error: Se esperaba una contraseña incorrecta")
+        # Caso de prueba: contraseña incorrecta (valor no numérico)
+        self.assertFalse(self.cajero.validar_contraseña("abcd"), "Error: Se esperaba una contraseña incorrecta")
 
     def test_retiro_saldo_disponible(self):
          #Se comprueba que el retiro sea un monto igual al monto disponible(5000)
