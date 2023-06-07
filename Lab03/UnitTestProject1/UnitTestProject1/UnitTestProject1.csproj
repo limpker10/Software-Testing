@@ -49,6 +49,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UserRegistrationTests.cs" />
+    <Compile Include="UserRegistration.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="Fibonacci.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
